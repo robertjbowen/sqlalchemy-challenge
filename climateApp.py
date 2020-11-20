@@ -1,0 +1,164 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Nov 19 18:09:35 2020
+
+@author: Rob Bowen
+"""
+
+import numpy as np
+import pandas as pd
+from datetime import datetime
+import datetime as dt
+
+import sqlalchemy
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import Session
+from sqlalchemy import create_engine, func
+
+from flask import Flask, jsonify
+
+#################################################
+# Database Setup
+#################################################
+engine = create_engine("sqlite:///Resources/hawaii.sqlite")
+
+# reflect an existing database into a new model
+Base = automap_base()
+# reflect the tables
+Base.prepare(engine, reflect=True)
+
+# Save reference to the tables
+Station = Base.classes.station
+Measurement = Base.classes.measurement
+
+#################################################
+# Flask Setup
+#################################################
+app = Flask('climate_app')
+
+
+#################################################
+# Flask Routes
+#################################################
+
+@app.route("/")
+def homePage():
+    """List all available api routes."""
+    return (
+        f"Available Routes:<br/>"
+        f"/api/v1.0/precipitation<br/>"
+        f"/api/v1.0/stations<br/>"
+        f"/api/v1.0/tobs<br/>"
+        f"/api/v1.0/<start><br/>"
+        f"/api/v1.0/<start>/<end>"
+    )
+
+
+@app.route("/api/v1.0/precipitation")
+def precipitation():
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    """Return a list of all dates and precipitation scores"""
+    # Perform a query to retrieve the date and precipitation scores
+    results = session.query(Measurement.date, Measurement.prcp).all()
+
+    session.close()
+
+    # Create a dictionary from the row data
+    precipitation_dict = {}
+    for date, prcp in results:
+       precipitation_dict[date] = prcp 
+    
+    # Display the json dictionary   
+    return jsonify(precipitation_dict)
+    
+
+
+@app.route("/api/v1.0/stations")
+def stations():
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    """Return a list of station id numbers and names"""
+    # Query all station ids and names
+    results = session.query(Station.station, Station.name).all()
+
+    session.close()
+
+    # Create a dictionary from the row data and append to a list of all_stations
+    all_stations = []
+    for stat, title in results:
+        station_dict = {}
+        station_dict[stat] = title
+        all_stations.append(station_dict)
+    #Display the list of Stations    
+    return jsonify(all_stations)
+
+@app.route("/api/v1.0/tobs")
+def tobs():
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    """Return a list of station id numbers and temperature observations"""
+    # Query the last date in the DB
+    last_date = session.query(Measurement.date).order_by(Measurement.date.desc()).first()
+    # Convert the value to a string and clean unnessary characters
+    date_str = str(last_date).replace(',','').replace('(','').replace(')','').replace("'",'')
+    # convert string to a datetime object and calulate the date 1 year earlier
+    date = datetime.strptime(date_str, "%Y-%m-%d")
+    query_date = date - dt.timedelta(days=365)
+    
+    # Query all station ids and temps for the last year
+    results2 = session.query(Measurement.station, Measurement.tobs).filter(Measurement.date >= query_date).all()
+
+    # Save the query results as a Pandas DataFrame
+    station_obs = pd.DataFrame(results2, columns=['station','tobs'])
+    #Group by stations and determine the number of total observations for each sorted most to fewest
+    active_stations = station_obs.groupby(['station']).count()
+    active_stations = active_stations.sort_values(by=['tobs'], ascending=False)
+    # Determine the station with the most observations over the past year
+    station_max = active_stations.index[0]
+    
+    # Query the temp measurements for the station with the most observations over the last year
+    results3 = session.query(Measurement.tobs).filter(Measurement.station == station_max).filter(Measurement.date >= query_date).all()
+    
+    session.close()
+    # Create a list and append each temperature observation to it
+    all_tobs = []
+    for tobs in results3:
+        all_tobs.append(tobs)
+    #Display the temperature observations for the previous year
+    return jsonify(all_tobs)
+
+
+@app.route("/api/v1.0/<start>") 
+def start_date(start):
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    """Return a list of station id numbers and temperature observations"""
+    # Query the last date in the DB
+    sel = [func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
+    
+    results = session.query(*sel).filter(func.strftime("%Y-%m-%d", Measurement.date) >= start).all()
+    session.close()
+    return jsonify(results)
+
+@app.route("/api/v1.0/<start>/<end>") 
+def end_date(start, end):
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    """Return a list of station id numbers and temperature observations"""
+    # Query the last date in the DB
+    sel = [func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
+    
+    results = session.query(*sel).filter(func.strftime("%Y-%m-%d", Measurement.date) >= start).filter(func.strftime("%Y-%m-%d", Measurement.date) <= end).all()
+    session.close()
+    return jsonify(results)
+    
+if __name__ == '__main__':
+    app.run(debug=True)
+
+

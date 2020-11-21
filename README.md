@@ -1,17 +1,16 @@
 # sqlalchemy-challenge
 
-The purpose of this challenge is to conduct some climate analysis using Python and SQLAlchemy and then use Flask to generate a web based interface to view the data and to allow the user to define the date rrange for data queries to return temperature observations. 
+The purpose of this challenge is to conduct some climate analysis using Python and SQLAlchemy and then use Flask to generate a web based API interface to view the data and to allow the user to define the date range for data queries to return temperature observations. 
 
 
 ### Documents in this repository are:
 
 * climate_Bowen.ipynb - My Jupyter Notebook file running a Python 3 kernel that contains the SQLAlchmey, Pandas, and Matplotlib code for conducting the data analysis and plotting the results
 
-* data directory containing the source file of purchasing data - purchase_data.csv
+* climateApp.py - My Python file running that contains the Flask Apps and python code to generate the Web based API
 
-* images folder - contains images of the code blocks and their outputs
+* images folder - contains images of the query and WebPage outputs
 
-* Checkpoints directory containing checkpoint .ipynb files
 
 ***
 ### Design concept:

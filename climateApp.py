@@ -82,13 +82,13 @@ def stations():
 
     """Return a list of station id numbers and names"""
     # Query all station ids and names
-    results = session.query(Station.station, Station.name).all()
+    results2 = session.query(Station.station, Station.name).all()
 
     session.close()
 
     # Create a dictionary from the row data and append to a list of all_stations
     all_stations = []
-    for stat, title in results:
+    for stat, title in results2:
         station_dict = {}
         station_dict[stat] = title
         all_stations.append(station_dict)
@@ -110,10 +110,10 @@ def tobs():
     query_date = date - dt.timedelta(days=365)
     
     # Query all station ids and temps for the last year
-    results2 = session.query(Measurement.station, Measurement.tobs).filter(Measurement.date >= query_date).all()
+    results3 = session.query(Measurement.station, Measurement.tobs).filter(Measurement.date >= query_date).all()
 
     # Save the query results as a Pandas DataFrame
-    station_obs = pd.DataFrame(results2, columns=['station','tobs'])
+    station_obs = pd.DataFrame(results3, columns=['station','tobs'])
     #Group by stations and determine the number of total observations for each sorted most to fewest
     active_stations = station_obs.groupby(['station']).count()
     active_stations = active_stations.sort_values(by=['tobs'], ascending=False)
@@ -121,12 +121,12 @@ def tobs():
     station_max = active_stations.index[0]
     
     # Query the temp measurements for the station with the most observations over the last year
-    results3 = session.query(Measurement.tobs).filter(Measurement.station == station_max).filter(Measurement.date >= query_date).all()
+    results4 = session.query(Measurement.tobs).filter(Measurement.station == station_max).filter(Measurement.date >= query_date).all()
     
     session.close()
     # Create a list and append each temperature observation to it
     all_tobs = []
-    for tobs in results3:
+    for tobs in results4:
         all_tobs.append(tobs)
     #Display the temperature observations for the previous year
     return jsonify(all_tobs)
@@ -137,26 +137,38 @@ def start_date(start):
     # Create our session (link) from Python to the DB
     session = Session(engine)
 
-    """Return a list of station id numbers and temperature observations"""
-    # Query the last date in the DB
+    """Return a list of max, average, and min temperature observations since start date"""
+    # Query the DB
     sel = [func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
     
-    results = session.query(*sel).filter(func.strftime("%Y-%m-%d", Measurement.date) >= start).all()
+    results5 = session.query(*sel).filter(func.strftime("%Y-%m-%d", Measurement.date) >= start).all()
+    
     session.close()
-    return jsonify(results)
+    
+    # Create a dictionary and append each temperature observation to it
+    sel_temps = {'min':results5[0][0],'average':results5[0][1],'max':results5[0][2]}
+        
+    #Display the temperature observations for the range
+    return jsonify(sel_temps)
 
 @app.route("/api/v1.0/<start>/<end>") 
 def end_date(start, end):
     # Create our session (link) from Python to the DB
     session = Session(engine)
 
-    """Return a list of station id numbers and temperature observations"""
-    # Query the last date in the DB
+    """Return a list of max, average, and min temperature observations within the date range"""
+    # Query the DB
     sel = [func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
     
-    results = session.query(*sel).filter(func.strftime("%Y-%m-%d", Measurement.date) >= start).filter(func.strftime("%Y-%m-%d", Measurement.date) <= end).all()
+    results6 = session.query(*sel).filter(func.strftime("%Y-%m-%d", Measurement.date) >= start).filter(func.strftime("%Y-%m-%d", Measurement.date) <= end).all()
+    
     session.close()
-    return jsonify(results)
+   
+    # Create a dictionary and append each temperature observation to it
+    rng_temps = {'min':results6[0][0],'average':results6[0][1],'max':results6[0][2]}
+        
+    #Display the temperature observations for the range
+    return jsonify(rng_temps)
     
 if __name__ == '__main__':
     app.run(debug=True)

@@ -21,11 +21,11 @@ Part one uses SQLAlchemy within Jupyter Notebook to reflect data tables into SQL
 
 ![alt tag](https://github.com/robertjbowen/sqlalchemy-challenge/blob/main/images/Picture7.png)  ![alt tag](https://github.com/robertjbowen/sqlalchemy-challenge/blob/main/images/Picture10.png)
 
-The results were then grouped the determine the average precipitation by date and plotted using both: 
-Pandas.plot.bar  
+The results were then grouped the determine the average precipitation by date and plotted using both:  
+### Pandas.plot.bar  
 ![alt tag](https://github.com/robertjbowen/sqlalchemy-challenge/blob/main/images/Picture8.png)
 
-Matplotlib plt.bar  
+### Matplotlib plt.bar  
 ![alt tag](https://github.com/robertjbowen/sqlalchemy-challenge/blob/main/images/Picture9.png)
 
 ***

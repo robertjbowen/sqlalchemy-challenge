@@ -147,9 +147,10 @@ def start_date(start):
     
     # Create a dictionary and append each temperature observation to it
     sel_temps = {'min':results5[0][0],'average':results5[0][1],'max':results5[0][2]}
-        
+      
     #Display the temperature observations for the range
     return jsonify(sel_temps)
+    
 
 @app.route("/api/v1.0/<start>/<end>") 
 def end_date(start, end):
@@ -170,6 +171,7 @@ def end_date(start, end):
     #Display the temperature observations for the range
     return jsonify(rng_temps)
     
+
 if __name__ == '__main__':
     app.run(debug=True)
 

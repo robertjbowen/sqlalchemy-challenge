@@ -11,6 +11,8 @@ The purpose of this challenge is to conduct some climate analysis using Python a
 
 * images folder - contains images of the query and WebPage outputs
 
+* Resources folder - contains the data files of the climate and observation station data used for the analysis
+
 
 ***
 ### Design concept:

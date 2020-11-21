@@ -61,13 +61,30 @@ Simply generates a list of available app options for the user to choose from.
 
 ### Precipitation App
 
-Opens a query session, conducts a query to to gather date and precipitation data, closes the query, reads the data into a dictionary using the data value as the key and precipition as the values, then uses json to display the dictionary to the web page.
+Opens a query session, conducts a query to to gather date and precipitation data, closes the query, reads the data into a dictionary using the date value as the key and precipitation as the values, then uses json to display the dictionary to the web page.
 
 ![alt tag](link to picture 2)
 
-### Precipitation App
+### Stations App
 
-Opens a query session, conducts a query to to gather date and precipitation data, closes the query, reads the data into a dictionary using the data value as the key and precipition as the values, then uses json to display the dictionary to the web page.
+Opens a query session, conducts a query to to gather station ids and station names, closes the query, reads each row of data into a dictionary using the id value as the key and name as the values, appends each dictionary to a list of all stations, then uses json to display the list to the web page.
 
-![alt tag](link to picture 2)
+![alt tag](link to picture 3)
 
+### Tobs App
+
+Opens a query session, reuses the 1 year date query and calculation from Part one of Step one, conducts a second query to gather station and temperature observations over the last year, calculates the station with the most observations using the process from Part two of Step one, conducts a third query to import the temperature data over the past year from the station with the most observations, closes the query, appends each teperature value to a list of all temperature observations, then uses json to display the list to the web page.
+
+![alt tag](link to picture 4)
+
+### start_date App
+
+This App requires the user to enter a start date in the format %Y-%m-%d in the browser header, opens a query session, uses the SQLAlchemy functions (func.min, func.avg, and func.max) to conduct a query of all temperature observations with a filter of only retrieving observation dates greater than or equal to a user defined start date, closes the query, creates a dictionary of the results using (min, average, and max) as keys, then uses json to display the dictionary to the web page.
+
+![alt tag](link to picture 5)
+
+### end_date App
+
+This App follows the same steps as the start_date App, but requires the user to provide second date in the browser header. The query uses the second date as a filter to only retrieve observation dates less than or equal to this user defined end date.
+
+![alt tag](link to picture 6)

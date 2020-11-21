@@ -92,6 +92,7 @@ def stations():
         station_dict = {}
         station_dict[stat] = title
         all_stations.append(station_dict)
+
     #Display the list of Stations    
     return jsonify(all_stations)
 
@@ -128,6 +129,7 @@ def tobs():
     all_tobs = []
     for tobs in results4:
         all_tobs.append(tobs)
+    
     #Display the temperature observations for the previous year
     return jsonify(all_tobs)
 
